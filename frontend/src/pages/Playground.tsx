@@ -1,23 +1,33 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Link as LinkIcon, Search, Loader2, ExternalLink, Copy, Check } from 'lucide-react'
+import { Link as LinkIcon, Search, Loader2, ExternalLink, Copy, Check, Key } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'
 
 export default function PlaygroundPage() {
   const [url, setUrl] = useState('https://github.com')
+  const [apiKey, setApiKey] = useState('')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
   
   const handleExtract = async () => {
+    if (!apiKey.trim()) {
+      setError('API key is required. Sign up to get one!')
+      return
+    }
+    
     setLoading(true)
     setError('')
     setResult(null)
     
     try {
-      const res = await fetch(`${API_URL}/extract?url=${encodeURIComponent(url)}`)
+      const res = await fetch(`${API_URL}/extract?url=${encodeURIComponent(url)}`, {
+        headers: {
+          'X-API-Key': apiKey.trim()
+        }
+      })
       const data = await res.json()
       
       if (!data.success) {
@@ -52,6 +62,7 @@ export default function PlaygroundPage() {
           
           <div className="flex items-center gap-6">
             <Link to="/docs" className="text-gray-400 hover:text-white transition-colors">Docs</Link>
+            <Link to="/dashboard" className="text-gray-400 hover:text-white transition-colors">Dashboard</Link>
             <Link to="/signup" className="btn-primary">Get Started</Link>
           </div>
         </div>
@@ -64,7 +75,30 @@ export default function PlaygroundPage() {
             <p className="text-gray-400 text-lg">Test the metadata extraction API live</p>
           </div>
           
-          {/* Input */}
+          {/* API Key Input */}
+          <div className="card p-6 mb-6">
+            <label className="block text-sm font-medium mb-2">
+              <span className="flex items-center gap-2">
+                <Key className="w-4 h-4 text-purple-400" />
+                API Key
+              </span>
+            </label>
+            <input
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="og_xxxxxxxxxxxxxxxxxxxxxxxx"
+              className="input font-mono"
+            />
+            <p className="text-gray-500 text-sm mt-2">
+              Don't have an API key?{' '}
+              <Link to="/signup" className="text-purple-400 hover:underline">Sign up for free</Link>
+              {' '}or{' '}
+              <Link to="/dashboard" className="text-purple-400 hover:underline">get one from your dashboard</Link>.
+            </p>
+          </div>
+          
+          {/* URL Input */}
           <div className="card p-6 mb-8">
             <label className="block text-sm font-medium mb-2">Enter a URL to extract metadata</label>
             <div className="flex gap-3">
@@ -76,6 +110,7 @@ export default function PlaygroundPage() {
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://example.com"
                   className="input pl-12"
+                  onKeyDown={(e) => e.key === 'Enter' && handleExtract()}
                 />
               </div>
               <button
@@ -191,7 +226,7 @@ export default function PlaygroundPage() {
 const response = await fetch(
   '${API_URL}/extract?url=${encodeURIComponent(url)}',
   {
-    headers: { 'X-API-Key': 'your_api_key' }
+    headers: { 'X-API-Key': '${apiKey || 'your_api_key'}' }
   }
 );
 
