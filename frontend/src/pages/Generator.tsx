@@ -17,7 +17,12 @@ export default function GeneratorPage() {
   const descMax = 160
 
   const generateCode = () => {
-    const domain = url ? new URL(url).hostname : 'example.com'
+    let domain = 'example.com'
+    try {
+      if (url) domain = new URL(url).hostname
+    } catch {
+      // Invalid URL, use default
+    }
     
     return `<!-- HTML Meta Tags -->
 <title>${title || 'Your Title'}</title>
