@@ -260,6 +260,7 @@ export default function PlaygroundPage() {
           </Link>
           
           <div className="flex items-center gap-6">
+            <Link to="/generator" className="text-gray-400 hover:text-white transition-colors">Generator</Link>
             <Link to="/docs" className="text-gray-400 hover:text-white transition-colors">Docs</Link>
             <Link to="/dashboard" className="text-gray-400 hover:text-white transition-colors">Dashboard</Link>
             <Link to="/signup" className="btn-primary">Get Started</Link>

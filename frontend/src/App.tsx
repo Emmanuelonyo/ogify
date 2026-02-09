@@ -6,6 +6,7 @@ import SignupPage from './pages/Signup'
 import DashboardPage from './pages/Dashboard'
 import DocsPage from './pages/Docs'
 import PlaygroundPage from './pages/Playground'
+import GeneratorPage from './pages/Generator'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth()
@@ -29,6 +30,7 @@ export default function App() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/docs" element={<DocsPage />} />
       <Route path="/playground" element={<PlaygroundPage />} />
+      <Route path="/generator" element={<GeneratorPage />} />
       <Route
         path="/dashboard/*"
         element={
