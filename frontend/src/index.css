@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  @apply bg-gray-950 text-white antialiased;
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400;
+}
+
+.gradient-border {
+  @apply relative;
+}
+
+.gradient-border::before {
+  content: '';
+  @apply absolute inset-0 rounded-xl p-[1px];
+  background: linear-gradient(135deg, #8b5cf6, #6366f1, #8b5cf6);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+}
+
+.glow {
+  box-shadow: 0 0 60px rgba(139, 92, 246, 0.3);
+}
+
+.card {
+  @apply bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl;
+}
+
+.btn-primary {
+  @apply px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 active:scale-100;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white font-medium rounded-lg transition-all duration-200 border border-gray-700;
+}
+
+.input {
+  @apply w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all;
+}
+
+pre {
+  @apply bg-gray-900 rounded-lg p-4 overflow-x-auto;
+}
+
+code {
+  @apply text-sm font-mono;
+}

@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  apiKeys   ApiKey[]
+  usageLogs UsageLog[]
+}
+
+model ApiKey {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  name        String
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Rate limiting
+  rateLimit   Int      @default(100) // requests per minute
+  dailyLimit  Int      @default(10000) // requests per day
+  
+  // Permissions
+  canExtract  Boolean  @default(true)
+  canGenerate Boolean  @default(true)
+  
+  // Status
+  active      Boolean  @default(true)
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  usageLogs   UsageLog[]
+
+  @@index([key])
+  @@index([userId])
+}
+
+model UsageLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  apiKeyId  String
+  apiKey    ApiKey   @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+  
+  endpoint  String   // 'extract' | 'generate'
+  url       String?  // URL that was processed
+  
+  // Response info
+  status    Int      // HTTP status code
+  latencyMs Int      // Response time in ms
+  cached    Boolean  @default(false)
+  
+  // Metadata
+  userAgent String?
+  ip        String?
+  
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([apiKeyId])
+  @@index([createdAt])
+  @@index([endpoint])
+}
+
+model CachedMetadata {
+  id          String   @id @default(cuid())
+  urlHash     String   @unique // SHA256 hash of URL
+  url         String
+  
+  // OpenGraph data
+  title       String?
+  description String?
+  image       String?
+  siteName    String?
+  type        String?
+  locale      String?
+  
+  // Twitter Card data
+  twitterCard        String?
+  twitterSite        String?
+  twitterCreator     String?
+  twitterTitle       String?
+  twitterDescription String?
+  twitterImage       String?
+  
+  // Other meta
+  favicon     String?
+  themeColor  String?
+  canonical   String?
+  
+  // Raw data
+  rawMeta     Json?
+  
+  // Cache control
+  fetchedAt   DateTime @default(now())
+  expiresAt   DateTime
+  
+  @@index([urlHash])
+  @@index([expiresAt])
+}
+
+model Plan {
+  id              String   @id @default(cuid())
+  name            String   @unique // 'free', 'starter', 'pro', 'enterprise'
+  
+  // Limits
+  requestsPerMonth Int
+  ratePerMinute    Int
+  cacheTtlHours    Int     @default(24)
+  
+  // Features
+  customTemplates  Boolean @default(false)
+  prioritySupport  Boolean @default(false)
+  webhooks         Boolean @default(false)
+  
+  // Pricing
+  priceMonthly     Int     @default(0) // in cents
+  priceYearly      Int     @default(0) // in cents
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
